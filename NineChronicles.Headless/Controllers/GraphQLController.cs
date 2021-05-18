@@ -139,10 +139,6 @@ namespace NineChronicles.Headless.Controllers
             {
                 return new StatusCodeResult(StatusCodes.Status409Conflict);
             }
-            if (!StandaloneContext.NineChroniclesNodeService.LightNode)
-            {
-                return Unauthorized();
-            }
             for(var index = 0; index < TxId.Size * 2; index += 2)
             {
                 var digit = txId.Substring(index, 2);
