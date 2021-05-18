@@ -352,7 +352,8 @@ namespace Libplanet.Headless.Hosting
                         await Swarm.PreloadAsync(
                             TimeSpan.FromSeconds(5),
                             PreloadProgress,
-                            cancellationToken: cancellationToken
+                            cancellationToken: cancellationToken,
+                            Properties.LightNode
                         );
                     }
                     catch (AggregateException e)
