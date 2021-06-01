@@ -1,19 +1,18 @@
 using Bencodex.Types;
 using GraphQL;
+using GraphQL.Server.Authorization.AspNetCore;
 using GraphQL.Types;
 using Libplanet;
 using Libplanet.Assets;
 using Libplanet.Blockchain;
 using Libplanet.Crypto;
-using Libplanet.Store;
+using Libplanet.Explorer.GraphTypes;
 using Libplanet.Tx;
+using Microsoft.Extensions.Configuration;
 using Nekoyume.Action;
 using Nekoyume.Model.State;
 using Serilog;
 using System;
-using GraphQL.Server.Authorization.AspNetCore;
-using Libplanet.Explorer.GraphTypes;
-using Microsoft.Extensions.Configuration;
 using NCAction = Libplanet.Action.PolymorphicAction<Nekoyume.Action.ActionBase>;
 
 namespace NineChronicles.Headless.GraphTypes
@@ -22,6 +21,7 @@ namespace NineChronicles.Headless.GraphTypes
     {
         public StandaloneMutation(
             StandaloneContext standaloneContext,
+            NineChroniclesNodeService nodeService,
             IConfiguration configuration
         )
         {
@@ -35,12 +35,12 @@ namespace NineChronicles.Headless.GraphTypes
                 resolve: context => standaloneContext.KeyStore);
 
             Field<ActivationStatusMutation>(
-                name: "activationStatus",
-                resolve: context => standaloneContext.NineChroniclesNodeService);
+                name: "activationStatus", 
+                resolve: _ => new ActivationStatusMutation(nodeService));
 
             Field<ActionMutation>(
-                name: "action",
-                resolve: context => standaloneContext.NineChroniclesNodeService);
+                name: "action", 
+                resolve: _ => new ActionMutation(nodeService));
 
             Field<NonNullGraphType<BooleanGraphType>>(
                 name: "stageTx",
@@ -109,6 +109,11 @@ namespace NineChronicles.Headless.GraphTypes
                         // Convert address type to hex string for graphdocs
                         DefaultValue = GoldCurrencyState.Address.ToHex(),
                         Name = "currencyAddress"
+                    },
+                    new QueryArgument<StringGraphType>
+                    {
+                        Description = "A 80-max length string to note.",
+                        Name = "memo",
                     }
                 ),
                 resolve: context =>
@@ -136,6 +141,7 @@ namespace NineChronicles.Headless.GraphTypes
                         FungibleAssetValue.Parse(currency, context.GetArgument<string>("amount"));
 
                     Address recipient = context.GetArgument<Address>("recipient");
+                    string? memo = context.GetArgument<string?>("memo");
                     Transaction<NCAction> tx = Transaction<NCAction>.Create(
                         context.GetArgument<long>("txNonce"),
                         privateKey,
@@ -145,7 +151,8 @@ namespace NineChronicles.Headless.GraphTypes
                             new TransferAsset(
                                 privateKey.ToAddress(),
                                 recipient,
-                                amount
+                                amount,
+                                memo
                             ),
                         }
                     );

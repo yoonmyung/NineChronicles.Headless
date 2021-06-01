@@ -301,8 +301,8 @@ namespace Libplanet.Headless.Hosting
                 Log.Debug($"{message}. DefaultStore will be used.");
             }
 
-            store ??= new DefaultStore(
-                path, flush: false, compress: true, statesCacheSize: statesCacheSize);
+            store ??= new DefaultStore(path, flush: false);
+            store = new ReducedStore(store);
 
             IKeyValueStore stateKeyValueStore = new RocksDBKeyValueStore(Path.Combine(path, "states")),
                 stateHashKeyValueStore = new RocksDBKeyValueStore(Path.Combine(path, "state_hashes"));
@@ -358,12 +358,23 @@ namespace Libplanet.Headless.Hosting
                     }
                     catch (AggregateException e)
                     {
+                        Log.Error(e, "{Message}", e.Message);
                         if (!_ignorePreloadFailure)
                         {
                             throw;
                         }
-
-                        Log.Error(e, "{Message}", e.Message);
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error(
+                            e,
+                            $"An unexpected exception occurred during {nameof(Swarm.PreloadAsync)}: {{Message}}",
+                            e.Message
+                        );
+                        if (!_ignorePreloadFailure)
+                        {
+                            throw;
+                        }
                     }
 
                     PreloadEnded.Set();
