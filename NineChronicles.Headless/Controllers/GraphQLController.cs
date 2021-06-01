@@ -20,6 +20,8 @@ using NineChronicles.Headless.GraphTypes;
 using NineChronicles.Headless.Requests;
 using Serilog;
 using Libplanet.Tx;
+using System.Threading;
+using Libplanet.Blocks;
 
 namespace NineChronicles.Headless.Controllers
 {
@@ -130,32 +132,20 @@ namespace NineChronicles.Headless.Controllers
         }
 
         [HttpGet(CheckTxId)]
-        public IActionResult CheckTx(string txId)
+        public IActionResult CheckTx([FromQuery] string txId)
         {
-            var txIdByteArray = new byte[32];
-            var byteIndex = 0;
-
-            if (StandaloneContext.NineChroniclesNodeService is null)
-            {
-                return new StatusCodeResult(StatusCodes.Status409Conflict);
-            }
-            for(var index = 0; index < TxId.Size * 2; index += 2)
-            {
-                var digit = txId.Substring(index, 2);
-                txIdByteArray[byteIndex++] = 
-                    Convert.ToByte(digit, 16);
-            }
+            byte[] txIdByteArray = Enumerable.Range(0, txId.Length)
+                     .Where(x => x % 2 == 0)
+                     .Select(x => Convert.ToByte(txId.Substring(x, 2), 16))
+                     .ToArray();
             var txIdObject = new TxId(txIdByteArray);
             if (StandaloneContext.Store is null)
             {
-                return new StatusCodeResult(StatusCodes.Status409Conflict);
+                return NotFound("Store is null.");
             }
             else
             {
-                return Ok(
-                    $"{StandaloneContext.Store.ContainsTransaction(txIdObject)}" +
-                    $"/{string.Join(",", txIdObject.ByteArray)}"
-                    );
+                return Ok(StandaloneContext.Store.ContainsTransaction(txIdObject));
             }
         }
 
