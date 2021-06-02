@@ -152,12 +152,7 @@ namespace NineChronicles.Headless.Controllers
         [HttpGet(CheckTxId + "/block")]
         public IActionResult CheckTx([FromQuery] string txIdString, [FromQuery] string blockHashString)
         {
-            byte[] txIdByteArray = Enumerable.Range(0, txId.Length)
-                     .Where(x => x % 2 == 0)
-                     .Select(x => Convert.ToByte(txId.Substring(x, 2), 16))
-                     .ToArray();
-            var txIdObject = new TxId(txIdByteArray);
-            var blockHashObject = BlockHash.FromString(blockHash);
+            var txId = new TxId(ByteUtil.ParseHex(txIdString));
             var blockHash = BlockHash.FromString(blockHashString);
             var blockHashList = new List<BlockHash>();
             blockHashList.Add(blockHash);
