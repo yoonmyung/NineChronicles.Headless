@@ -150,7 +150,7 @@ namespace NineChronicles.Headless.Controllers
         }
 
         [HttpGet(CheckTxId + "/block")]
-        public IActionResult CheckTx([FromQuery] string txId, [FromQuery] string blockHash)
+        public IActionResult CheckTx([FromQuery] string txIdString, [FromQuery] string blockHashString)
         {
             byte[] txIdByteArray = Enumerable.Range(0, txId.Length)
                      .Where(x => x % 2 == 0)
@@ -158,8 +158,9 @@ namespace NineChronicles.Headless.Controllers
                      .ToArray();
             var txIdObject = new TxId(txIdByteArray);
             var blockHashObject = BlockHash.FromString(blockHash);
+            var blockHash = BlockHash.FromString(blockHashString);
             var blockHashList = new List<BlockHash>();
-            blockHashList.Add(blockHashObject);
+            blockHashList.Add(blockHash);
 
             if (StandaloneContext.NineChroniclesNodeService is null || StandaloneContext.NineChroniclesNodeService.Swarm is null)
             {
@@ -171,7 +172,7 @@ namespace NineChronicles.Headless.Controllers
 
                 foreach (var tx in txsInBlock)
                 {
-                    if (tx.Id.Equals(txIdObject))
+                    if (tx.Id.Equals(txId))
                     {
                         return Ok(true);
                     }
