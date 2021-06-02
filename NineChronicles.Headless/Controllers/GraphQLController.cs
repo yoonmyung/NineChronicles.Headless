@@ -157,7 +157,7 @@ namespace NineChronicles.Headless.Controllers
             var blockHashList = new List<BlockHash>();
             blockHashList.Add(blockHash);
 
-            if (StandaloneContext.NineChroniclesNodeService is null || StandaloneContext.NineChroniclesNodeService.Swarm is null)
+            if (StandaloneContext.NineChroniclesNodeService is null)
             {
                 return NotFound("Need to fill all of properties of StandaloneContext.");
             }
