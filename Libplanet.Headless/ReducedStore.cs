@@ -32,8 +32,14 @@ namespace Libplanet.Headless
         public bool ContainsBlock(BlockHash blockHash) =>
             InternalStore.ContainsBlock(blockHash);
 
+        public bool ContainsBlockHeader(BlockHash blockHash) =>
+            InternalStore.ContainsBlockHeader(blockHash);
+
         public bool ContainsTransaction(TxId txId) =>
             InternalStore.ContainsTransaction(txId);
+
+        public long CountBlockHeaders() => 
+            InternalStore.CountBlockHeaders();
 
         public long CountBlocks() =>
             InternalStore.CountBlocks();
@@ -46,6 +52,9 @@ namespace Libplanet.Headless
 
         public bool DeleteBlock(BlockHash blockHash) =>
             InternalStore.DeleteBlock(blockHash);
+
+        public bool DeleteBlockHeader(BlockHash blockHash) =>
+            InternalStore.DeleteBlockHeader(blockHash);
 
         public void DeleteChainId(Guid chainId) =>
             InternalStore.DeleteChainId(chainId);
@@ -70,6 +79,9 @@ namespace Libplanet.Headless
         public BlockDigest? GetBlockDigest(BlockHash blockHash) =>
             InternalStore.GetBlockDigest(blockHash);
 
+        public BlockHeader? GetBlockHeader(BlockHash blockHash) =>
+            InternalStore.GetBlockHeader(blockHash);
+
         public long? GetBlockIndex(BlockHash blockHash) =>
             InternalStore.GetBlockIndex(blockHash);
 
@@ -78,6 +90,9 @@ namespace Libplanet.Headless
 
         public Guid? GetCanonicalChainId() =>
             InternalStore.GetCanonicalChainId();
+
+        public BlockHeader GetLatestBlockHeader() =>
+            InternalStore.GetLatestBlockHeader();
 
         public Transaction<T> GetTransaction<T>(TxId txid) where T : IAction, new() =>
             InternalStore.GetTransaction<T>(txid);
@@ -96,6 +111,9 @@ namespace Libplanet.Headless
 
         public IEnumerable<BlockHash> IterateBlockHashes() =>
             InternalStore.IterateBlockHashes();
+
+        public IEnumerable<BlockHash> IterateBlockHeaderHashes() =>
+            InternalStore.IterateBlockHeaderHashes();
 
         public IEnumerable<BlockHash> IterateIndexes(
             Guid chainId,
@@ -118,6 +136,9 @@ namespace Libplanet.Headless
 
         public void PutBlock<T>(Block<T> block) where T : IAction, new() =>
             InternalStore.PutBlock(block);
+
+        public void PutBlockHeader(BlockHeader blockHeader) =>
+            InternalStore.PutBlockHeader(blockHeader);
 
         public void PutTransaction<T>(Transaction<T> tx) where T : IAction, new() =>
             InternalStore.PutTransaction(tx);
