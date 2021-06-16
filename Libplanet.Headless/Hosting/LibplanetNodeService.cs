@@ -145,6 +145,11 @@ namespace Libplanet.Headless.Hosting
                 shuffledIceServers = iceServers.OrderBy(x => rand.Next());
             }
 
+            if (Properties.LightNode)
+            {
+                Log.Debug("It's Light node.");
+            }
+
             Swarm = new Swarm<T>(
                 BlockChain,
                 Properties.SwarmPrivateKey,
@@ -159,7 +164,8 @@ namespace Libplanet.Headless.Hosting
                 {
                     MaxTimeout = TimeSpan.FromSeconds(10),
                     BlockHashRecvTimeout = TimeSpan.FromSeconds(10),
-                }
+                },
+                lightNode: Properties.LightNode
             );
 
             PreloadEnded = new AsyncManualResetEvent();
@@ -352,8 +358,7 @@ namespace Libplanet.Headless.Hosting
                         await Swarm.PreloadAsync(
                             TimeSpan.FromSeconds(5),
                             PreloadProgress,
-                            cancellationToken: cancellationToken,
-                            Properties.LightNode
+                            cancellationToken: cancellationToken
                         );
                     }
                     catch (AggregateException e)
