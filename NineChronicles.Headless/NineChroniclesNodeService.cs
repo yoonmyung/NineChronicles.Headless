@@ -67,6 +67,8 @@ namespace NineChronicles.Headless
             }
         }
 
+        public bool LightNode => Properties.LightNode;
+
         public NineChroniclesNodeService(
             PrivateKey? minerPrivateKey,
             LibplanetNodeServiceProperties<NCAction> properties,

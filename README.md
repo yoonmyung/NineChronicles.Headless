@@ -1,22 +1,44 @@
-# NineChronicles Headless
+# NineChronicles Headless (light-node)
+
+
 
 ## Table of Contents
 
+- [Pre-requisites](#pre-requisites)
 - [Run](#run)
-- [Docker Build](#docker-build)
-  * [Command Line Options](#command-line-options)
-  * [Format](#format)
-- [How to run NineChronicles Headless on AWS EC2 instance using Docker](#how-to-run-ninechronicles-headless-on-aws-ec2-instance-using-docker)
-  * [On Your AWS EC2 Instance](#on-your-aws-ec2-instance)
-  * [Building Your Own Docker Image from Your Local](#building-your-own-docker-image-from-your-local)
-- [Nine Chronicles GraphQL API Documentation](#nine-chronicles-graphql-api-documentation)
+- [Preloading](#preloading)
+- [Check transaction](#check-transaction)
+
+## Pre-requisites
+
+#### 1. Clone this repository.
+
+```
+$ git clone https://github.com/yoonmyung/NineChronicles.Headless.git
+```
+
+#### 2. Clone yoonmyung/libplanet repository.
+
+```
+$ git clone https://github.com/yoonmyung/libplanet.git
+```
+
+#### 3. Open directory you cloned yoonmyung/NineChronicles.Headless.
+
+#### 4. Find directory NineChronicles.Headless/Lib9c/.Libplanet, then overwrite it as directory you cloned yoonmyung/libplanet.
+
+```
+$ cp -arpf /path/libplanet /path/NineChronicles.Headless/Lib9c/.Libplanet
+```
+
+#### 5. Move into NineChronicles.Headless/NineChronicles.Headless.Executable.
 
 ## Run
 
 ```
 $ dotnet run --project ./NineChronicles.Headless.Executable/ -- --help
 Usage: NineChronicles.Headless.Executable [command]
-Usage: NineChronicles.Headless.Executable [--no-miner] [--app-protocol-version <String>] [--genesis-block-path <String>] [--host <String>] [--port <Nullable`1>] [--swarm-private-key <String>] [--minimum-difficulty <Int32>] [--miner-private-key <String>] [--store-type <String>] [--store-path <String>] [--ice-server <String>...] [--peer <String>...] [--trusted-app-protocol-version-signer <String>...] [--rpc-server] [--rpc-listen-host <String>] [--rpc-listen-port <Nullable`1>] [--graphql-server] [--graphql-host <String>] [--graphql-port <Nullable`1>] [--graphql-secret-token-path <String>] [--no-cors] [--libplanet-node] [--workers <Int32>] [--confirmations <Int32>] [--max-transactions <Int32>] [--strict-rendering] [--dev] [--dev.block-interval <Int32>] [--dev.reorg-interval <Int32>] [--log-action-renders] [--aws-cognito-identity <String>] [--aws-access-key <String>] [--aws-secret-key <String>] [--aws-region <String>] [--authorized-miner] [--tx-life-time <Int32>] [--message-timeout <Int32>] [--tip-timeout <Int32>] [--demand-buffer <Int32>] [--help] [--version]
+Usage: NineChronicles.Headless.Executable [--no-miner] [--app-protocol-version <String>] [--genesis-block-path <String>] [--host <String>] [--port <Nullable`1>] [--swarm-private-key <String>] [--minimum-difficulty <Int32>] [--miner-private-key <String>] [--store-type <String>] [--store-path <String>] [--ice-server <String>...] [--peer <String>...] [--trusted-app-protocol-version-signer <String>...] [--rpc-server] [--rpc-listen-host <String>] [--rpc-listen-port <Nullable`1>] [--graphql-server] [--graphql-host <String>] [--graphql-port <Nullable`1>] [--graphql-secret-token-path <String>] [--no-cors] [--libplanet-node] [--workers <Int32>] [--confirmations <Int32>] [--max-transactions <Int32>] [--strict-rendering] [--dev] [--dev.block-interval <Int32>] [--dev.reorg-interval <Int32>] [--log-action-renders] [--aws-cognito-identity <String>] [--aws-access-key <String>] [--aws-secret-key <String>] [--aws-region <String>] [--authorized-miner] [--tx-life-time <Int32>] [--message-timeout <Int32>] [--tip-timeout <Int32>] [--demand-buffer <Int32>] [--help] [--version] [--light-node]
 
 NineChronicles.Headless.Executable
 
@@ -67,143 +89,56 @@ Options:
   --demand-buffer <Int32>                                  A number that determines how far behind the demand the tip of the chain will publish `NodeException` to GraphQL subscriptions.  1150 blocks by default. (Default: 1150)
   -h, --help                                               Show help message
   --version                                                Show version
+  --light-node                                             Run a node as a light node, which stores only block header (Default: false)
 ```
 
-## Docker Build
+## Preloading
 
-A headless image can be created by running the command below in the directory where the solution is located.
-
-```
-$ docker build . -t <IMAGE_TAG> --build-arg COMMIT=<VERSION_SUFFIX>
-```
-* Nine Chronicles Team uses <VERSION_SUFFIX> to build an image with the latest git commit and push to the [official Docker Hub repository](https://hub.docker.com/repository/docker/planetariumhq/ninechronicles-headless). However, if you want to build and push to your own Docker Hub account, <VERSION_SUFFIX> can be any value.
-
-### Command Line Options
-
-- `-H`, `--host`: Specifies the host name.
-- `-P`, `--port`: Specifies the port number.
-- `--swarm-private-key`: Specifies the private Key used in swarm.
-- `--miner-private-key`: Specifies the private Key used in mining.
-- `--no-miner`: Disables mining.
-- `--store-path`: Specifies the path for storing data.
-- `-I`, `--ice-server`: Specifies the TURN server info used for NAT Traversal. If there are multiple servers, they can be added by typing: `--ice-server serverA --ice-server serverB ...`.
-- `--peer`: Adds a peer and if there are multiple peers, they can be added by typing: `--peer peerA --peer peerB ...`.
-- `-G`, `--genesis-block-path`: Specifies the path of the genesis block.
-- `-V`, `--app-protocol-version`: Specifies the value of `Swarm<T>.AppProtocolVersion`.
-- `--rpc-server`: Starts with RPC server mode. Must specify `--rpc-listen-port` to use this mode.
-- `--rpc-listen-host`: Host name for RPC server mode.
-- `--rpc-listen-port`: Port number for RPC server mode.
--  `--graphql-server`: Turn on graphQL controller.
--  `--graphql-host`: Host name for graphQL controller.
--  `--graphql-port`: Port number for graphQL controller.
--  `--libplanet-node`: Run with formal Libplanet node. One of this or `graphql-server` must be set.
--  `--workers`: Number of workers to use in Swarm.
--  `--confirmations`: Specifies the number of required confirmations to recognize a block.
--  `--max-transactions`: Specifies the number of maximum transactions can be included in a single block. Unlimited if the value is less then or equal to 0.
--  `--dev`: Flag to turn on the dev mode.
--  `--dev.block-interval`: Specifies the time interval between blocks by milliseconds in dev mode.
--  `--dev.reorg-interval`: Specifies the size of reorg interval in dev mode.
--  `--message-timeout`: Specifies the time limit that determines how old the latest message is received will publish `NodeException` to GraphQL subscriptions.
--  `--tip-timeout`: Specifies the time limit that determines how old the blockchain's tip is updated will publish `NodeException` to GraphQL subscriptions.
--  `--demand-buffer`: Specifies the number that determines how far behind the demand the tip of the chain will publish `NodeException` to GraphQL subscriptions.
-
-### Format
-
-Formatting for `PrivateKey` or `Peer` follows the format in [Nekoyume Project README][../README.md].
-
-## How to run NineChronicles Headless on AWS EC2 instance using Docker
-
-### On Your AWS EC2 Instance
-
-#### Pre-requisites
-
-- Docker environment: [Docker Installation Guide](https://docs.docker.com/get-started/#set-up-your-docker-environment)
-- AWS EC2 instance: [AWS EC2 Guide](https://docs.aws.amazon.com/ec2/index.html)
-
-#### 1. Pull ninechronicles-headless Docker image to your AWS EC2 instance from the [official Docker Hub repository](https://hub.docker.com/repository/docker/planetariumhq/ninechronicles-headless).
-
-* If you would like to build your own Docker image from your local, refer to [this section](#building-your-own-docker-image-from-your-local).
+#### If you run NineChronicles.Headless as a light node, you can see this log.
 
 ```
-$ docker pull planetariumhq/ninechronicles-headless:latest
-
-Usage: docker pull [<DOCKER_HUB_ACCOUNT>/<IMAGE_NAME>] : [<TAGNAME>]
+[19:12:05 DBG] It's Light node.
 ```
-- [Docker Pull Guide](https://docs.docker.com/engine/reference/commandline/pull/)
 
-![Docker Pull](https://i.imgur.com/oLCULZr.png)
-
-#### 2. Create a Docker volume for blockchain data persistance
+#### After bootstraping, your tip which is the starting point of preloading blocks will decide if it needs to be updated or not.
 
 ```
-$ docker volume create 9c-volume
-Usage: docker volume create [<VOLUME_NAME>]
+[19:12:15 DBG] The tip before preloading begins: #1710206 0a2df227af7ef4a1bce9723b318320b2b36e8dc5a76d2e04bb25cdfca2b14d4c true
 ```
-- [Docker Volume Guide](https://docs.docker.com/engine/reference/commandline/volume_create/)
 
-![Docker Volume Create](https://i.imgur.com/ISgKeLc.png)
+"true" in this log means that your tip as a full-node and a light-node are the same or your light-node tip is forward to full-node tip. You don't need update your tip.
 
-#### 3. Run your Docker image with your Docker volume mounted (use -d for detached mode)
-
-<pre>
-$ docker run \
---detach \
---volume 9c-volume:/app/data \
-planetariumhq/ninechronicles-headless:latest \
-<a href = "#run" title="NineChronicles Headless options">[NineChronicles Headless Options]</a>
-</pre>
-#### Note)
-
-* If you want to use the same headless options as your Nine Chronicles game client, refer to **`config.json`** under **`%localappdata%\Programs\Nine Chronicles\resources\app`**. Inside **`config.json`**, refer to the following properties for your headless options:
-  - `GeniesisBlockPath`
-  - `MinimumDifficulty`
-  - `StoreType`
-  - `AppProtocolVersion`
-  - `TrustedAppProtocolVersionSigners`
-  - `IceServerStrings`
-  - `PeerStrings`
-  - `NoTrustedStateValidators`
-  - `NoMiner`
-  - `Confirmations`
-  - `Workers`
-* If you are using an [Elastic IP](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html) on your AWS instance, you must include the IP as the `--host` option but do not need to include the `--ice-server` option.
-* For mining, make sure to include the `--miner-private-key` option with your private key. Also, include `--libplanet-node` to run the default libplanet node.
-
-![Docker Run](https://i.imgur.com/VlwFybj.png)
-
-- [Docker Volumes Usage](https://docs.docker.com/storage/volumes/)
-
-### Building Your Own Docker Image from Your Local
-
-#### Pre-requisites
-
-- Docker environment: [Docker Installation Guide](https://docs.docker.com/get-started/#set-up-your-docker-environment)
-- Docker Hub account: [Docker Hub Guide](https://docs.docker.com/docker-hub/)
-
-#### 1. Build Docker image with the tag name in [<DOCKER_HUB_ACCOUNT>/<IMAGE_NAME>] format.
 
 ```
-$ docker build . --tag 9c/9c-headless --build-arg COMMIT=9c-1
-
-Usage: docker build . --tag [<DOCKER_HUB_ACCOUNT>/<IMAGE_NAME>] : [<TAGNAME>] --build-arg COMMIT=[<VERSION_SUFFIX>]
+[19:19:47 DBG] The tip before preloading begins: #1710231 34749a9c87c7f6ecb284f819bb7db33be85f31a0766c6486ce931ae6f7823ac8 false
 ```
-- [Docker Build Guide](https://docs.docker.com/engine/reference/commandline/build/)
 
-![Docker Build](https://i.imgur.com/iz74t3J.png)
+"false" means that your tip as a light-node is behind the tip as a full-node. So you need to update your tip.
 
-#### 2. Push your Docker image to your Docker Hub account.
+#### (WIP) But you'll see this log.
+```
+[19:19:47 ERR] An unexpected exception occurred during PreloadAsync: The block [34749a9c87c7f6ecb284f819bb7db33be85f31a0766c6486ce931ae6f7823ac8] doesn't exist. (Parameter 'point')
+System.ArgumentException: The block [34749a9c87c7f6ecb284f819bb7db33be85f31a0766c6486ce931ae6f7823ac8] doesn't exist. (Parameter 'point')
+```
+
+Preloading after changing tip point is under process. I'll fix this as soon as possible.
+
+#### You can check stored block-headers from /path/planetarium/9c-main-partition/blockheader
+
+## Check Transaction
+
+#### If you know the hash value of block, you can check whether this block includes specific transaction or not.
+
+#### While running NineChronicles.Headless, put block hash and transaction Id which you want to check into URL.
+![image](https://user-images.githubusercontent.com/40621689/122335710-b08c3000-cf76-11eb-8995-7c2aa73a5116.png)
+We use this data.
 
 ```
-$ docker push 9c/9c-headless:latest
-
-Usage: docker push [<DOCKER_HUB_ACCOUNT>/<IMAGE_NAME>] : [<TAGNAME>]
+http://[your --host option value]:[your --graphql-port value]/check-tx/
+block?txIdString=[ID value of transaction which you want to check]
+&blockHashString=[hash value of block which you want to check]
 ```
-- [Docker Push Guide](https://docs.docker.com/engine/reference/commandline/push/)
 
-![Docker Push](https://i.imgur.com/NWUW9LS.png)
+#### Result is correct to the data we use.
+![gitchecktx](https://user-images.githubusercontent.com/40621689/122335311-07453a00-cf76-11eb-9964-630787d38659.png)
 
-## Nine Chronicles GraphQL API Documentation
-
-Check out [Nine Chronicles GraphQL API Tutorial](https://www.notion.so/Getting-Started-with-Nine-Chronicles-GraphQL-API-a14388a910844a93ab8dc0a2fe269f06) to get you started with using GraphQL API with NineChronicles Headless.
-
-For more information on the GraphQL API, refer to the [NineChronicles Headless GraphQL Documentation](http://api.nine-chronicles.com/).

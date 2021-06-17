@@ -19,7 +19,9 @@ using Nekoyume.Model.Item;
 using NineChronicles.Headless.GraphTypes;
 using NineChronicles.Headless.Requests;
 using Serilog;
-
+using Libplanet.Tx;
+using System.Threading;
+using Libplanet.Blocks;
 
 namespace NineChronicles.Headless.Controllers
 {
@@ -38,6 +40,8 @@ namespace NineChronicles.Headless.Controllers
         public const string SetMiningEndpoint = "/set-mining";
 
         public const string CheckPeerEndpoint = "/check-peer";
+
+        public const string CheckTxId = "/check-tx";
 
         public GraphQLController(StandaloneContext standaloneContext, IHttpContextAccessor httpContextAccessor, IConfiguration configuration)
         {
@@ -124,6 +128,51 @@ namespace NineChronicles.Headless.Controllers
                 // Unexpected Error.
                 Log.Warning(e, msg);
                 return StatusCode(StatusCodes.Status500InternalServerError, msg);
+            }
+        }
+
+        [HttpGet(CheckTxId)]
+        public IActionResult CheckTx([FromQuery] string txId)
+        {
+            byte[] txIdByteArray = Enumerable.Range(0, txId.Length)
+                     .Where(x => x % 2 == 0)
+                     .Select(x => Convert.ToByte(txId.Substring(x, 2), 16))
+                     .ToArray();
+            var txIdObject = new TxId(txIdByteArray);
+            if (StandaloneContext.Store is null)
+            {
+                return NotFound("Store is null.");
+            }
+            else
+            {
+                return Ok(StandaloneContext.Store.ContainsTransaction(txIdObject));
+            }
+        }
+
+        [HttpGet(CheckTxId + "/block")]
+        public IActionResult CheckTx([FromQuery] string txIdString, [FromQuery] string blockHashString)
+        {
+            var txId = new TxId(ByteUtil.ParseHex(txIdString));
+            var blockHash = BlockHash.FromString(blockHashString);
+            var blockHashList = new List<BlockHash>();
+            blockHashList.Add(blockHash);
+
+            if (StandaloneContext.NineChroniclesNodeService is null)
+            {
+                return NotFound("Need to fill all of properties of StandaloneContext.");
+            }
+            else
+            {
+                var txsInBlock = StandaloneContext.NineChroniclesNodeService.Swarm.GetTxs(blockHashList.AsEnumerable(), new CancellationToken());
+
+                foreach (var tx in txsInBlock)
+                {
+                    if (tx.Id.Equals(txId))
+                    {
+                        return Ok(true);
+                    }
+                }
+                return Ok(false);
             }
         }
 

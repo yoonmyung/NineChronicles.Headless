@@ -155,7 +155,9 @@ namespace NineChronicles.Headless.Executable
             int demandBuffer = 1150,
             [Option("static-peer",
                 Description = "A list of peers that the node will continue to maintain.")]
-            string[]? staticPeerStrings = null
+            string[]? staticPeerStrings = null,
+            [Option("light-node")]
+            bool lightNode = false
         )
         {
 #if SENTRY || ! DEBUG
@@ -275,7 +277,8 @@ namespace NineChronicles.Headless.Executable
                         messageTimeout: messageTimeout,
                         tipTimeout: tipTimeout,
                         demandBuffer: demandBuffer,
-                        staticPeerStrings: staticPeerStrings);
+                        staticPeerStrings: staticPeerStrings,
+                        lightNode: lightNode);
 
                 if (rpcServer)
                 {
